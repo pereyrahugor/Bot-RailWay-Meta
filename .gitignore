@@ -1,0 +1,13 @@
+# Ignorar archivo de variables de entorno
+.env
+dist/*
+temp/voiceNote
+!tmp/.gitkeep
+
+*_sessions
+.wwebjs*
+
+*.log
+*qr.png
+instructivo_variables_entorno.txt
+node_modules

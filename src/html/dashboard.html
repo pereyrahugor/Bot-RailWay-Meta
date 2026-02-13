@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Bot Dashboard</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="/style/dashboard.css">
+</head>
+<body>
+    <div class="card" id="card-ycloud">
+        <h1>📱 Canal Oficial (YCloud)</h1>
+        <p>Estado: <span class="status" id="ycloud-status">Cargando...</span></p>
+        <div id="ycloud-info" class="info-text"></div>
+        <div id="ycloud-link-container" style="display:none; margin-top: 15px;">
+            <a id="ycloud-link" href="#" target="_blank" class="btn" style="background-color: #25D366; color: white; border: none;">
+                💬 Chatear con el Bot
+            </a>
+        </div>
+    </div>
+
+    <div class="card" id="card-groups">
+        <h1>👥 Motor de Grupos (Baileys)</h1>
+        <p>Estado: <span class="status" id="groups-status">Cargando...</span></p>
+        
+        <div id="groups-qr-section" style="display:none">
+            <div class="qr-container">
+                <h3>Escanea para envíos a Grupos</h3>
+                <img src="/qr-groups.png" class="qr" alt="Cargando QR..." onerror="this.style.display='none';this.nextElementSibling.style.display='block'">
+                <p style="display:none; color:orange;">Generando QR... por favor espera.</p>
+                <p class="info-text">Usa este QR si necesitas reportes a grupos de WhatsApp.</p>
+            </div>
+        </div>
+
+        <div id="groups-info" class="info-text" style="display:none"></div>
+    </div>
+    <div class="card">
+        <h2>💬 WebChat</h2>
+        <p class="info-text">Accede a la interfaz de chat web para pruebas o soporte.</p>
+        <a href="/webchat" class="btn">Abrir WebChat</a>
+    </div>
+    <div class="card">
+        <h2>⚙️ Editar Variables</h2>
+        <p class="info-text">Accede al panel de edición de parámetros y variables del Bot.</p>
+        <a href="/variables" class="btn">Abrir Panel</a>
+    </div>
+    <div class="card" style="border-left: 5px solid #dc3545;">
+        <h2>⚠️ Zona de Peligro</h2>
+        <p class="info-text">Si el bot no responde en WhatsApp, elimina la sesión para generar un nuevo QR.</p>
+        <button id="go-reset" class="btn btn-danger">🗑️ Borrar Sesión y Reiniciar</button>
+    </div>
+    <script src="/js/dashboard.js"></script>
+</body>
+</html>
