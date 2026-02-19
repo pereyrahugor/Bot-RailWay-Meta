@@ -35,6 +35,7 @@ class YCloudProvider extends ProviderClass {
      */
     public async saveFile(ctx: any, { path: folderPath }: { path: string }) {
         try {
+            const apiKey = process.env.YCLOUD_API_KEY;
             // En este provider, el payload contiene el mensaje de YCloud/Meta
             const msg = ctx.payload;
             const media = msg?.image || msg?.video || msg?.audio || msg?.document || msg?.sticker;
@@ -45,7 +46,14 @@ class YCloudProvider extends ProviderClass {
             }
 
             const url = media.link;
-            const response = await axios.get(url, { responseType: 'arraybuffer' });
+            console.log(`[YCloudProvider] Descargando media de: ${url}`);
+            
+            const response = await axios.get(url, { 
+                responseType: 'arraybuffer',
+                headers: {
+                    'X-API-Key': apiKey
+                }
+            });
             
             const mimeType = media.mime_type || media.mimeType || 'application/octet-stream';
             let extension = '.bin';
@@ -53,7 +61,7 @@ class YCloudProvider extends ProviderClass {
             if (mimeType.includes('image/jpeg')) extension = '.jpg';
             else if (mimeType.includes('image/png')) extension = '.png';
             else if (mimeType.includes('audio/ogg')) extension = '.ogg';
-            else if (mimeType.includes('audio')) extension = '.ogg'; // Default para voz
+            else if (mimeType.includes('audio')) extension = '.ogg'; 
             else if (mimeType.includes('video/mp4')) extension = '.mp4';
             else if (mimeType.includes('pdf')) extension = '.pdf';
 
@@ -70,6 +78,9 @@ class YCloudProvider extends ProviderClass {
             return fullPath;
         } catch (error: any) {
             console.error('[YCloudProvider] Error en saveFile:', error.message);
+            if (error.response) {
+                console.error('[YCloudProvider] Detalle error descarga:', error.response.status, error.response.data?.toString());
+            }
             return null;
         }
     }
@@ -163,6 +174,11 @@ class YCloudProvider extends ProviderClass {
                     message: {}
                 };
 
+                // Si es un evento, forzar que el body sea igual al tipo (algunos motores de bot lo requieren)
+                if (normalizedType.startsWith('_event_')) {
+                    formatedMessage.body = normalizedType;
+                }
+
                 // Inyectar compatibilidad para flows que esperan estructura de Baileys
                 if (msg.location) {
                     formatedMessage.message.location = {
@@ -204,6 +220,10 @@ class YCloudProvider extends ProviderClass {
                                     payload: msg,
                                     message: {}
                                 };
+
+                                if (normalizedType.startsWith('_event_')) {
+                                    formatedMessage.body = normalizedType;
+                                }
 
                                 if (msg.location) {
                                     formatedMessage.message.location = {

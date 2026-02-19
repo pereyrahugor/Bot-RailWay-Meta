@@ -445,8 +445,7 @@ const main = async () => {
     });
 
     adapterProvider.on('message', (ctx) => {
-        console.log(`Type Msj Recibido: ${ctx.type || 'desconocido'}`);
-        console.log('⚡ [Provider] message received');
+        console.log(`📩 [Incoming] Type: ${ctx.type} | Body: ${ctx.body?.substring(0, 50)}...`);
         
         // Detección de botones para Sherpa/Baileys (ctx.message)
         // Y para YCloud (ctx.type === 'interactive' o presence de payload)
@@ -498,7 +497,16 @@ const main = async () => {
     await updateMain();
 
     console.log('🚀 [Init] Iniciando createBot...');
+    console.log('🔍 [DEBUG] EVENTS.VOICE_NOTE in app.ts:', EVENTS.VOICE_NOTE);
+    
     const adapterFlow = createFlow([welcomeFlowTxt, welcomeFlowVoice, welcomeFlowImg, welcomeFlowVideo, welcomeFlowDoc, locationFlow, idleFlow, welcomeFlowButton]);
+    
+    // Debug de flujos cargados
+    const flowList = [welcomeFlowTxt, welcomeFlowVoice, welcomeFlowImg, welcomeFlowVideo, welcomeFlowDoc, locationFlow, idleFlow, welcomeFlowButton];
+    flowList.forEach(f => {
+        console.log(`🔍 [DEBUG] Flow loaded: ${f.constructor.name} - Keywords:`, (f as any).keywords);
+    });
+
     const adapterDB = new MemoryDB();
 
     const { httpServer } = await createBot({
