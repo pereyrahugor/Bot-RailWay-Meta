@@ -927,4 +927,4 @@ main().catch(err => {
 });
 
 //ok
-//restored - Commit 210290e
+//version funcional - primer version - 18/02/2026. 23:20
