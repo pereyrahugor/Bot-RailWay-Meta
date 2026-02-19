@@ -26,13 +26,6 @@ const credentials = {
     private_key: process.env.GOOGLE_PRIVATE_KEY?.replace(/\\n/g, '\n').replace(/"/g, '').trim(),
 };
 
-// Log de depuración (seguro)
-if (credentials.private_key) {
-    console.log(`[Google Auth] Key Status: starts with ${credentials.private_key.substring(0, 20)}..., ends with ...${credentials.private_key.slice(-20)}`);
-} else {
-    console.error("[Google Auth] Error: GOOGLE_PRIVATE_KEY is undefined");
-}
-
 const auth = new google.auth.GoogleAuth({
     credentials,
     scopes: ["https://www.googleapis.com/auth/spreadsheets"],
