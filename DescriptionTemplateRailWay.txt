@@ -1,33 +1,36 @@
 # Deploy and Host WhatsApp AI Assistant Bot on Railway
 
-WhatsApp AI Assistant Bot is a Node.js-based WhatsApp bot that integrates with OpenAI's Assistant API using BuilderBot technology. It enables automated, intelligent conversations on WhatsApp, configurable via your own OpenAI Assistant and environment variables.
+WhatsApp AI Assistant Bot is a powerful Node.js solution that integrates OpenAI's Assistant API (including Vision and File Search) with multiple messaging providers like WhatsApp (Baileys & YCloud) and Webchat. Built on BuilderBot technology, it features seamless integrations with Google Sheets, Google Calendar, and Supabase, manageable via a web dashboard.
 
 ## About Hosting WhatsApp AI Assistant Bot
 
-Hosting WhatsApp AI Assistant Bot on Railway allows you to deploy a production-ready conversational bot for WhatsApp with minimal setup. The bot supports custom flows, intelligent responses, and can be tailored to your business or personal needs by adjusting environment variables and assistant configuration. Railway handles the infrastructure, so you can focus on building and improving your bot logic, not on server management.
+Hosting this bot on Railway provides enterprise-grade infrastructure with zero-config scaling. It supports advanced features like multimedia message analysis, automated appointment booking via Google Calendar, real-time inventory synchronization with Google Sheets, and persistent session storage with Supabase. The included web dashboard allows for real-time monitoring and environment variable updates directly on your Railway deployment.
 
 ## Why Deploy WhatsApp AI Assistant Bot on Railway?
 
-Railway is a singular platform to deploy your infrastructure stack. Railway will host your infrastructure so you don't have to deal with configuration, while allowing you to vertically and horizontally scale it.
-
-By deploying WhatsApp AI Assistant Bot on Railway, you are one step closer to supporting a complete full-stack application with minimal burden. Host your servers, databases, AI agents, and more on Railway.
+Railway offers a robust platform that simplifies the deployment of complex AI stacks. It provides automatic SSL, continuous deployment from GitHub, and vertical/horizontal scaling without manual server management. By hosting here, you ensure high availability for your business critical communications while keeping your data secure and your bot responsive.
 
 ## Common Use Cases
 
-- Automated customer support on WhatsApp
-- Lead generation and qualification via chat
-- Sending intelligent notifications or reminders to users
+- **AI Customer Support:** Handle inquiries 24/7 with intelligent context-aware responses.
+- **Official Business Messaging:** Integrate with Meta/YCloud for verified business communications.
+- **Task Automation:** Sync sales to Google Sheets or manage bookings in Google Calendar automatically.
+- **Multimedia Analysis:** Process and analyze images sent by users via OpenAI's Vision capabilities.
+- **Lead Qualification:** Automatically capture and store lead information in your choice of database or sheet.
 
 ## Dependencies for WhatsApp AI Assistant Bot Hosting
 
-- Node.js (managed by Railway)
-- pnpm (for dependency management)
-- OpenAI API key (for assistant integration)
+- **AI Engine:** OpenAI Assistant API (V2) with Vision & File Search support.
+- **Messaging:** Multi-provider support (WhatsApp Web, YCloud, Webchat).
+- **Integraciones:** Google Workspace, Supabase, Amadeus Travel API.
+- **Stack:** Node.js, pnpm, Docker support.
 
 ### Deployment Dependencies
 
-- [BuilderBot documentation](https://builderbot.vercel.app/)
-- [OpenAI API](https://platform.openai.com/)
+- [BuilderBot Documentation](https://builderbot.vercel.app/)
+- [OpenAI Platform](https://platform.openai.com/)
+- [Google Cloud Console](https://console.cloud.google.com/)
+- [YCloud Provider](https://www.ycloud.com/)
 
 ---
 
@@ -35,3 +38,4 @@ By deploying WhatsApp AI Assistant Bot on Railway, you are one step closer to su
 
 Desarrollado por Pereyra Hugo - pereyrahugor@gmail.com
 Sitio web: https://clientesneurolinks.com/
+Sitio web: https://duskcodes.com.ar/
