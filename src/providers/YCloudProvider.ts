@@ -1,5 +1,7 @@
 import { ProviderClass } from '@builderbot/bot';
 import axios from 'axios';
+import fs from 'fs';
+import path from 'path';
 
 class YCloudProvider extends ProviderClass {
     globalVendorArgs: any;
@@ -28,8 +30,48 @@ class YCloudProvider extends ProviderClass {
         return [];
     };
 
-    public saveFile() {
-        return Promise.resolve('no-file');
+    /**
+     * Descarga y guarda archivos de media (imágenes, audios, videos, documentos)
+     */
+    public async saveFile(ctx: any, { path: folderPath }: { path: string }) {
+        try {
+            // En este provider, el payload contiene el mensaje de YCloud/Meta
+            const msg = ctx.payload;
+            const media = msg?.image || msg?.video || msg?.audio || msg?.document || msg?.sticker;
+            
+            if (!media || !media.link) {
+                console.warn('[YCloudProvider] No se encontró link de media en el payload.');
+                return null;
+            }
+
+            const url = media.link;
+            const response = await axios.get(url, { responseType: 'arraybuffer' });
+            
+            const mimeType = media.mime_type || media.mimeType || 'application/octet-stream';
+            let extension = '.bin';
+            
+            if (mimeType.includes('image/jpeg')) extension = '.jpg';
+            else if (mimeType.includes('image/png')) extension = '.png';
+            else if (mimeType.includes('audio/ogg')) extension = '.ogg';
+            else if (mimeType.includes('audio')) extension = '.ogg'; // Default para voz
+            else if (mimeType.includes('video/mp4')) extension = '.mp4';
+            else if (mimeType.includes('pdf')) extension = '.pdf';
+
+            const fileName = `media_${Date.now()}${extension}`;
+            const fullPath = path.join(process.cwd(), folderPath, fileName);
+            
+            const dir = path.dirname(fullPath);
+            if (!fs.existsSync(dir)) {
+                fs.mkdirSync(dir, { recursive: true });
+            }
+            
+            fs.writeFileSync(fullPath, Buffer.from(response.data));
+            console.log(`[YCloudProvider] Archivo descargado y guardado en: ${fullPath}`);
+            return fullPath;
+        } catch (error: any) {
+            console.error('[YCloudProvider] Error en saveFile:', error.message);
+            return null;
+        }
     }
 
     public async sendMessage(number: string, message: string, options: any = {}): Promise<any> {
@@ -77,7 +119,9 @@ class YCloudProvider extends ProviderClass {
 
             if (body.type === 'whatsapp.inbound_message.received' && body.whatsappInboundMessage) {
                 const msg = body.whatsappInboundMessage;
-                const formatedMessage = {
+                const mediaObject = msg.image || msg.video || msg.audio || msg.document || msg.sticker;
+                
+                const formatedMessage: any = {
                     body: msg.text?.body || 
                           msg.interactive?.button_reply?.title || 
                           msg.interactive?.list_reply?.title || 
@@ -86,22 +130,39 @@ class YCloudProvider extends ProviderClass {
                     phoneNumber: msg.from.replace('+', ''),
                     name: msg.customerProfile?.name || 'User',
                     type: msg.type,
-                    payload: msg
+                    media: mediaObject ? {
+                        link: mediaObject.link,
+                        mimetype: mediaObject.mime_type || mediaObject.mimeType
+                    } : null,
+                    payload: msg,
+                    message: {}
                 };
+
+                // Inyectar compatibilidad para flows que esperan estructura de Baileys
+                if (msg.location) {
+                    formatedMessage.message.location = {
+                        degreesLatitude: msg.location.latitude,
+                        degreesLongitude: msg.location.longitude
+                    };
+                }
+                if (msg.image) formatedMessage.message.imageMessage = { mimetype: msg.image.mime_type || msg.image.mimeType };
+                if (msg.video) formatedMessage.message.videoMessage = { mimetype: msg.video.mime_type || msg.video.mimeType };
+                if (msg.document) formatedMessage.message.documentMessage = { mimetype: msg.document.mime_type || msg.document.mimeType };
+                if (msg.audio) formatedMessage.message.audioMessage = { mimetype: msg.audio.mime_type || msg.audio.mimeType };
+
                 this.emit('message', formatedMessage);
             } 
             else if (body.object === 'whatsapp_business_account' || body.entry) {
+                // ... (Lógica para webhooks directos de Meta si fuera necesario, similar a la anterior)
                 body.entry?.forEach((entry: any) => {
                     entry.changes?.forEach((change: any) => {
                         if (change.value?.messages) {
-                            change.value.contacts?.forEach((contact: any) => {
-                                // Guardar wa_id del contacto para referencia si es necesario
-                            });
                             change.value.messages.forEach((msg: any) => {
-                                const waId = msg.from; // En el formato de Meta, 'from' en message suele ser el wa_id
-                                const phoneNumber = waId; // Por defecto
+                                const waId = msg.from; 
+                                const phoneNumber = waId; 
+                                const mediaObject = msg.image || msg.video || msg.audio || msg.document || msg.sticker;
                                 
-                                const formatedMessage = {
+                                const formatedMessage: any = {
                                     body: msg.text?.body || 
                                           msg.interactive?.button_reply?.title || 
                                           msg.interactive?.list_reply?.title || 
@@ -110,8 +171,25 @@ class YCloudProvider extends ProviderClass {
                                     phoneNumber: phoneNumber,
                                     name: msg.profile?.name || 'User',
                                     type: msg.type,
-                                    payload: msg
+                                    media: mediaObject ? {
+                                        link: mediaObject.link,
+                                        mimetype: mediaObject.mime_type || mediaObject.mimeType
+                                    } : null,
+                                    payload: msg,
+                                    message: {}
                                 };
+
+                                if (msg.location) {
+                                    formatedMessage.message.location = {
+                                        degreesLatitude: msg.location.latitude,
+                                        degreesLongitude: msg.location.longitude
+                                    };
+                                }
+                                if (msg.image) formatedMessage.message.imageMessage = { mimetype: msg.image.mime_type || msg.image.mimeType };
+                                if (msg.video) formatedMessage.message.videoMessage = { mimetype: msg.video.mime_type || msg.video.mimeType };
+                                if (msg.document) formatedMessage.message.documentMessage = { mimetype: msg.document.mime_type || msg.document.mimeType };
+                                if (msg.audio) formatedMessage.message.audioMessage = { mimetype: msg.audio.mime_type || msg.audio.mimeType };
+
                                 this.emit('message', formatedMessage);
                             });
                         }

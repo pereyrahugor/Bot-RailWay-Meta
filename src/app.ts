@@ -477,7 +477,24 @@ const main = async () => {
             
             // Asignar el tipo ACTION para disparar welcomeFlowButton
             ctx.type = EVENTS.ACTION;
-            console.log(`Updated Type Msj Recibido: ${ctx.type}`);
+            console.log(`Updated Type Msj Recibido (Button): ${ctx.type}`);
+        }
+
+        // Normalización de tipos para YCloud (Media y otros eventos)
+        if (ctx.type === 'audio') {
+            // En YCloud, ctx.payload es whatsappInboundMessage
+            const isVoice = ctx.payload?.audio?.voice;
+            ctx.type = isVoice ? EVENTS.VOICE_NOTE : EVENTS.MEDIA;
+            console.log(`Updated Type Msj Recibido (Audio): ${ctx.type} (isVoice: ${isVoice})`);
+        } else if (ctx.type === 'image' || ctx.type === 'video') {
+            ctx.type = EVENTS.MEDIA;
+            console.log(`Updated Type Msj Recibido (Media): ${ctx.type}`);
+        } else if (ctx.type === 'document') {
+            ctx.type = EVENTS.DOCUMENT;
+            console.log(`Updated Type Msj Recibido (Document): ${ctx.type}`);
+        } else if (ctx.type === 'location') {
+            ctx.type = EVENTS.LOCATION;
+            console.log(`Updated Type Msj Recibido (Location): ${ctx.type}`);
         }
     });
     adapterProvider.on('ready', () => {
