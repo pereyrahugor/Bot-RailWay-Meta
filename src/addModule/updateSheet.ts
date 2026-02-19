@@ -23,8 +23,13 @@ const supabase = (supabaseUrl && supabaseKey) ? createClient(supabaseUrl, supaba
 // Construir credenciales desde variables de entorno
 const credentials = {
     client_email: process.env.GOOGLE_CLIENT_EMAIL,
-    private_key: process.env.GOOGLE_PRIVATE_KEY?.replace(/\\n/g, '\n').replace(/"/g, '').trim(),
+    private_key: process.env.GOOGLE_PRIVATE_KEY?.replace(/\\+n/g, '\n').replace(/"/g, '').trim(),
 };
+
+if (credentials.private_key) {
+    const lines = credentials.private_key.split('\n').length;
+    console.log(`[UpdateSheet] Key parsed: ${lines} lines found.`);
+}
 
 const auth = new google.auth.GoogleAuth({
     credentials,
