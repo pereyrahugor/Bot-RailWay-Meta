@@ -1,4 +1,4 @@
-import { ProviderClass } from '@builderbot/bot';
+import { ProviderClass, EVENTS } from '@builderbot/bot';
 import axios from 'axios';
 import fs from 'fs';
 import path from 'path';
@@ -112,6 +112,29 @@ class YCloudProvider extends ProviderClass {
         }
     }
 
+    /**
+     * Normaliza el tipo de mensaje para que sea compatible con los flujos de builderbot
+     */
+    private normalizeType(msg: any): string {
+        const type = msg.type;
+        if (type === 'audio') {
+            return msg.audio?.voice ? EVENTS.VOICE_NOTE : EVENTS.MEDIA;
+        }
+        if (type === 'image' || type === 'video') {
+            return EVENTS.MEDIA;
+        }
+        if (type === 'document') {
+            return EVENTS.DOCUMENT;
+        }
+        if (type === 'location') {
+            return EVENTS.LOCATION;
+        }
+        if (type === 'interactive' || type === 'button') {
+            return EVENTS.ACTION;
+        }
+        return type;
+    }
+
     public handleWebhook = (req: any, res: any) => {
         try {
             const body = req.body;
@@ -121,6 +144,8 @@ class YCloudProvider extends ProviderClass {
                 const msg = body.whatsappInboundMessage;
                 const mediaObject = msg.image || msg.video || msg.audio || msg.document || msg.sticker;
                 
+                const normalizedType = this.normalizeType(msg);
+                
                 const formatedMessage: any = {
                     body: msg.text?.body || 
                           msg.interactive?.button_reply?.title || 
@@ -129,7 +154,7 @@ class YCloudProvider extends ProviderClass {
                     from: msg.waId || msg.from.replace('+', ''),
                     phoneNumber: msg.from.replace('+', ''),
                     name: msg.customerProfile?.name || 'User',
-                    type: msg.type,
+                    type: normalizedType,
                     media: mediaObject ? {
                         link: mediaObject.link,
                         mimetype: mediaObject.mime_type || mediaObject.mimeType
@@ -153,7 +178,6 @@ class YCloudProvider extends ProviderClass {
                 this.emit('message', formatedMessage);
             } 
             else if (body.object === 'whatsapp_business_account' || body.entry) {
-                // ... (Lógica para webhooks directos de Meta si fuera necesario, similar a la anterior)
                 body.entry?.forEach((entry: any) => {
                     entry.changes?.forEach((change: any) => {
                         if (change.value?.messages) {
@@ -162,6 +186,8 @@ class YCloudProvider extends ProviderClass {
                                 const phoneNumber = waId; 
                                 const mediaObject = msg.image || msg.video || msg.audio || msg.document || msg.sticker;
                                 
+                                const normalizedType = this.normalizeType(msg);
+
                                 const formatedMessage: any = {
                                     body: msg.text?.body || 
                                           msg.interactive?.button_reply?.title || 
@@ -170,7 +196,7 @@ class YCloudProvider extends ProviderClass {
                                     from: waId,
                                     phoneNumber: phoneNumber,
                                     name: msg.profile?.name || 'User',
-                                    type: msg.type,
+                                    type: normalizedType,
                                     media: mediaObject ? {
                                         link: mediaObject.link,
                                         mimetype: mediaObject.mime_type || mediaObject.mimeType
